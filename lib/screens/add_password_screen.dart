@@ -40,7 +40,7 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Website',
+                  labelText: 'Website / URL',
                   labelStyle: TextStyle(
                     color: Color(0xff00233c),
                     fontWeight: FontWeight.bold,
@@ -59,7 +59,7 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
               SizedBox(height: 10),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Email ID',
+                  labelText: 'Email ID / Username',
                   labelStyle: TextStyle(
                     color: Color(0xff00233c),
                     fontWeight: FontWeight.bold,

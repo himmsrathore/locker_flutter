@@ -6,6 +6,12 @@ import 'screens/login_screen.dart';
 import 'screens/locker_screen.dart';
 import 'screens/add_password_screen.dart';
 import 'screens/view_passwords_screen.dart';
+import 'screens/add_secret_screen.dart';
+import 'screens/view_secrets_screen.dart';
+import 'screens/privacy_policy_screen.dart';
+import 'screens/terms_conditions_screen.dart';
+import 'screens/about_us_screen.dart';
+import 'screens/faq_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,6 +33,12 @@ class MyApp extends StatelessWidget {
         '/locker': (context) => LockerScreen(),
         '/add_password': (context) => AddPasswordScreen(),
         '/view_passwords': (context) => ViewPasswordsScreen(),
+        '/add_secret': (context) => AddSecretScreen(),
+        '/view_secrets': (context) => ViewSecretsScreen(),
+        '/privacy_policy': (context) => PrivacyPolicyScreen(),
+        '/terms_conditions': (context) => TermsConditionsScreen(),
+        '/about_us': (context) => AboutUsScreen(),
+        '/faq': (context) => FAQScreen(),
       },
     );
   }

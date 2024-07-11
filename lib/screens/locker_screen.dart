@@ -65,6 +65,10 @@ class _LockerScreenState extends State<LockerScreen> {
                     context, 'Add New Password', Icons.add, '/add_password'),
                 _buildMenuItem(context, 'View All Passwords', Icons.lock,
                     '/view_passwords'),
+                _buildMenuItem(context, 'Add Secret', Icons.add_shopping_cart,
+                    '/add_secret'),
+                _buildMenuItem(
+                    context, 'View Secrets', Icons.visibility, '/view_secrets'),
               ],
             ),
           ),

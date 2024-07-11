@@ -39,61 +39,109 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: BoxDecoration(
           color: Color(0xfff6f7fb), // Background color of body
         ),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _pinController,
-                decoration: InputDecoration(
-                  labelText: 'PIN',
-                  labelStyle: TextStyle(
-                    color: Color(0xff00233c), // Text color of label
-                    fontWeight: FontWeight.bold, // Font weight of label
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Color(0xff00233c)), // Border color when focused
-                  ),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your PIN';
-                  }
-                  return null;
-                },
-                style: TextStyle(
-                  color: Color(0xff00233c), // Text color of input
-                  fontSize: 18, // Font size of input
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    SizedBox(height: 50), // Padding from the top
+                    Center(
+                      child: Image.asset(
+                        'assets/images/logo.png', // Path to your logo image
+                        height: 100, // Adjust the height as needed
+                      ),
+                    ),
+                    SizedBox(height: 50), // Space between logo and PIN input
+                    TextFormField(
+                      controller: _pinController,
+                      decoration: InputDecoration(
+                        labelText: 'PIN',
+                        labelStyle: TextStyle(
+                          color: Color(0xff00233c), // Text color of label
+                          fontWeight: FontWeight.bold, // Font weight of label
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color(
+                                  0xff00233c)), // Border color when focused
+                        ),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your PIN';
+                        }
+                        return null;
+                      },
+                      style: TextStyle(
+                        color: Color(0xff00233c), // Text color of input
+                        fontSize: 18, // Font size of input
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await _login();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xff00233c), // background
+                        foregroundColor: const Color.fromARGB(
+                            255, 255, 255, 255), // foreground
+                        elevation: 3, // Elevation of button
+                        padding: EdgeInsets.symmetric(
+                            vertical: 12), // Padding of button
+                        textStyle: TextStyle(
+                          fontSize: 18, // Font size of button text
+                          fontWeight:
+                              FontWeight.bold, // Font weight of button text
+                        ),
+                      ),
+                      child: Text('Login'),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    await _login();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff00233c), // background
-                  foregroundColor:
-                      const Color.fromARGB(255, 255, 255, 255), // foreground
-
-                  elevation: 3, // Elevation of button
-                  padding:
-                      EdgeInsets.symmetric(vertical: 12), // Padding of button
-                  textStyle: TextStyle(
-                    fontSize: 18, // Font size of button text
-                    fontWeight: FontWeight.bold, // Font weight of button text
-                  ),
+            ),
+            Column(
+              children: [
+                Divider(
+                    color:
+                        Colors.grey), // Divider between login form and buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildTextButton('Privacy Policy', '/privacy_policy'),
+                    _buildTextButton('Terms & Conditions', '/terms_conditions'),
+                    _buildTextButton('About Us', '/about_us'),
+                    _buildTextButton('FAQ', '/faq'),
+                  ],
                 ),
-                child: Text('Login'),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTextButton(String text, String route) {
+    return TextButton(
+      onPressed: () {
+        Navigator.pushNamed(context, route);
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: Color.fromARGB(255, 231, 242, 251), // Text color
+        textStyle: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      child: Text(text),
     );
   }
 

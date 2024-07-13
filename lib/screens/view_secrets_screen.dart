@@ -32,7 +32,7 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
             'timestamp': secretParts[3],
           };
         }).toList();
-        _filteredSecrets = _secrets;
+        _filteredSecrets = List.from(_secrets); // Initialize filtered list
       });
     }
   }
@@ -40,10 +40,33 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
   void _filterSecrets(String query) {
     setState(() {
       _searchQuery = query;
-      _filteredSecrets = _secrets.where((secret) {
-        return secret['title']!.toLowerCase().contains(query.toLowerCase()) ||
-            secret['description']!.toLowerCase().contains(query.toLowerCase());
-      }).toList();
+      if (query.isEmpty) {
+        _filteredSecrets =
+            List.from(_secrets); // Reset to full list if query is empty
+      } else {
+        _filteredSecrets = _secrets.where((secret) {
+          return secret['title']!.toLowerCase().contains(query.toLowerCase()) ||
+              secret['description']!
+                  .toLowerCase()
+                  .contains(query.toLowerCase());
+        }).toList();
+      }
+    });
+  }
+
+  Future<void> _deleteSecret(int index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> secrets = prefs.getStringList('secrets') ?? [];
+
+    // Remove from main list
+    secrets.removeAt(index);
+    await prefs.setStringList('secrets', secrets);
+
+    setState(() {
+      _secrets.removeAt(index);
+
+      // Update filtered list
+      _filteredSecrets.removeAt(index);
     });
   }
 
@@ -62,7 +85,7 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
         ),
         backgroundColor: Color(0xff00233c),
         iconTheme: IconThemeData(
-          color: Colors.white, // Color of the back icon
+          color: Colors.white,
         ),
       ),
       body: _filteredSecrets.isEmpty
@@ -70,7 +93,9 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
               child: Text(
                 'No secrets saved yet',
                 style: TextStyle(
-                    color: Color(0xff00233c), fontWeight: FontWeight.bold),
+                  color: Color(0xff00233c),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             )
           : ListView.builder(
@@ -116,7 +141,8 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
                           Text(
                             'Privacy Level: ${_filteredSecrets[index]['privacyLevel']}',
                             style: TextStyle(
-                                color: privacyColor), // Apply determined color
+                              color: privacyColor, // Apply determined color
+                            ),
                           ),
                           Text(
                             'Added on: ${_filteredSecrets[index]['timestamp']}',
@@ -127,6 +153,13 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
                           ),
                         ],
                       ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          _deleteSecret(
+                              _secrets.indexOf(_filteredSecrets[index]));
+                        },
+                      ),
                     ),
                   ),
                 );
@@ -134,4 +167,14 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
             ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Secret Vault',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+    ),
+    home: ViewSecretsScreen(),
+  ));
 }

@@ -37,8 +37,19 @@ class _AddSecretScreenState extends State<AddSecretScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Secret'),
+        title: Text(
+          'Add Your Secret',
+          style: TextStyle(
+            color: const Color.fromARGB(
+                255, 253, 253, 253), // Text color of app bar title
+            fontSize: 20, // Font size of app bar title
+            fontWeight: FontWeight.bold, // Font weight of app bar title
+          ),
+        ),
         backgroundColor: Color(0xff00233c),
+        iconTheme: IconThemeData(
+          color: Colors.white, // Color of the back icon
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

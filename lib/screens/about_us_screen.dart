@@ -19,53 +19,119 @@ class AboutUsScreen extends StatelessWidget {
           color: Colors.white, // Color of the back icon
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Image.asset(
+                'assets/images/logo.png', // Replace with your app logo
+                height: 100,
+              ),
+            ),
             SizedBox(height: 20),
-            Center(
-              child: Text(
-                '“The quieter you become, the more you can hear.”\n- Ram Dass',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                  color: Color(0xff00233c),
-                ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Color(0xff00233c), width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 30),
-            Text(
-              'About Password Keeper',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff00233c),
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Password Keeper is your secure vault for storing and managing your passwords. '
-              'Designed with simplicity and security in mind, it ensures that all your sensitive information '
-              'is safely encrypted and easily accessible only to you. Say goodbye to forgotten passwords '
-              'and enjoy peace of mind with our robust security features.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Color(0xff00233c),
-              ),
-            ),
-            SizedBox(height: 30),
-            Center(
-              child: Text(
-                '© 2024 by White Hawk. Made in India with heart.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontStyle: FontStyle.italic,
-                  color: Color(0xff00233c),
-                ),
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'About Us',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff00233c),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Welcome to Locker App! ',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff00233c),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Locker App is designed to keep your sensitive information secure and easily accessible. Whether it\'s your login credentials, secret notes, payment cards, or online identities, we provide a safe and convenient place to store them.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xff00233c),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Our Mission',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff00233c),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Our mission is to protect your digital life by providing state-of-the-art security solutions. We believe in privacy, simplicity, and accessibility. Our app is user-friendly and ensures your data is encrypted and stored only on your device.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xff00233c),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(height: 10),
+                  Text(
+                    '"The best way to predict the future is to create it." - Peter Drucker',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                      color: Color(0xff00233c),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          '© 2024 by White Hawk. Version(1.0.1)',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontStyle: FontStyle.italic,
+                            color: Color(0xff00233c),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          ' Made in India with',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontStyle: FontStyle.italic,
+                            color: Color(0xff00233c),
+                          ),
+                        ),
+                        Icon(
+                          Icons.favorite,
+                          color: Colors.red,
+                          size: 24.0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

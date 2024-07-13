@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:csv/csv.dart';
 
 class LockerScreen extends StatefulWidget {
   @override
@@ -20,6 +24,83 @@ class _LockerScreenState extends State<LockerScreen> {
     setState(() {
       _name = prefs.getString('name');
     });
+  }
+
+  Future<void> _backupPasswords() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? passwords = prefs.getStringList('passwords');
+
+    if (passwords != null) {
+      // Prompt user for PIN
+      String? pin = await _showPinDialog();
+
+      if (pin != null && pin.isNotEmpty) {
+        // Encrypt the passwords
+        final key = encrypt.Key.fromUtf8(pin.padRight(32));
+        final iv = encrypt.IV.fromLength(16);
+        final encrypter = encrypt.Encrypter(encrypt.AES(key));
+
+        List<List<String>> csvData = [
+          ['Title', 'Username', 'Password', 'Notes']
+        ];
+        for (var password in passwords) {
+          List<String> passwordParts = password.split(',');
+          csvData.add(passwordParts);
+        }
+
+        String csv = const ListToCsvConverter().convert(csvData);
+        final encrypted = encrypter.encrypt(csv, iv: iv);
+
+        // Save to file
+        final directory = await getExternalStorageDirectory();
+        final path = '${directory?.path}/password_backup.csv';
+        final file = File(path);
+        await file.writeAsString(encrypted.base64);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Backup successful: $path')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No passwords to backup')),
+      );
+    }
+  }
+
+  Future<String?> _showPinDialog() async {
+    String? pin;
+    await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController pinController = TextEditingController();
+        return AlertDialog(
+          title: Text('Enter PIN'),
+          content: TextField(
+            controller: pinController,
+            keyboardType: TextInputType.number,
+            obscureText: true,
+            decoration: InputDecoration(hintText: 'PIN'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                pin = pinController.text;
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    return pin;
   }
 
   @override
@@ -72,6 +153,21 @@ class _LockerScreenState extends State<LockerScreen> {
               ],
             ),
           ),
+          Container(
+            padding: EdgeInsets.all(20),
+            child: ElevatedButton.icon(
+              icon: Icon(Icons.backup),
+              label: Text('Backup Passwords'),
+              onPressed: _backupPasswords,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff00233c),
+                foregroundColor: Colors.white,
+                textStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -107,4 +203,14 @@ class _LockerScreenState extends State<LockerScreen> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Secret Vault',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+    ),
+    home: LockerScreen(),
+  ));
 }

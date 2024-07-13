@@ -10,6 +10,8 @@ class ViewPasswordsScreen extends StatefulWidget {
 
 class _ViewPasswordsScreenState extends State<ViewPasswordsScreen> {
   List<Map<String, String>> _passwords = [];
+  List<Map<String, String>> _filteredPasswords = [];
+  String query = '';
 
   @override
   void initState() {
@@ -31,6 +33,9 @@ class _ViewPasswordsScreenState extends State<ViewPasswordsScreen> {
             'password': passwordParts[2],
           };
         }).toList();
+
+        // Initially, set filteredPasswords to passwords
+        _filteredPasswords = List.from(_passwords);
       });
     }
   }
@@ -60,17 +65,37 @@ class _ViewPasswordsScreenState extends State<ViewPasswordsScreen> {
         iconTheme: IconThemeData(
           color: Colors.white, // Color of the back icon
         ), // Setting app bar background color
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () async {
+              final String? selected = await showSearch<String>(
+                context: context,
+                delegate: PasswordSearchDelegate(_passwords),
+              );
+
+              if (selected != null && selected != query) {
+                setState(() {
+                  query = selected;
+                  _filterPasswords(query);
+                });
+              }
+            },
+          ),
+        ],
       ),
-      body: _passwords.isEmpty
+      body: _filteredPasswords.isEmpty
           ? Center(
               child: Text(
-                'No passwords saved yet',
+                'No passwords found',
                 style: TextStyle(
-                    color: Color(0xff00233c), fontWeight: FontWeight.bold),
+                  color: Color(0xff00233c),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             )
           : ListView.builder(
-              itemCount: _passwords.length,
+              itemCount: _filteredPasswords.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -81,10 +106,10 @@ class _ViewPasswordsScreenState extends State<ViewPasswordsScreen> {
                           color: Color(0xff00233c)), // Icon color
                       title: GestureDetector(
                         onTap: () {
-                          _launchURL(_passwords[index]['website']!);
+                          _launchURL(_filteredPasswords[index]['website']!);
                         },
                         child: Text(
-                          _passwords[index]['website']!,
+                          _filteredPasswords[index]['website']!,
                           style: TextStyle(
                             color: Color(0xff00233c),
                             fontWeight: FontWeight.bold,
@@ -93,7 +118,7 @@ class _ViewPasswordsScreenState extends State<ViewPasswordsScreen> {
                         ),
                       ),
                       subtitle: Text(
-                        _passwords[index]['emailId']!,
+                        _filteredPasswords[index]['emailId']!,
                         style: TextStyle(color: Color(0xff00233c)),
                       ),
                       trailing: Row(
@@ -104,7 +129,7 @@ class _ViewPasswordsScreenState extends State<ViewPasswordsScreen> {
                             color: Color(0xff00233c), // Icon color
                             onPressed: () {
                               _showPasswordDialog(
-                                  _passwords[index]['password']!);
+                                  _filteredPasswords[index]['password']!);
                             },
                           ),
                           IconButton(
@@ -203,12 +228,107 @@ class _ViewPasswordsScreenState extends State<ViewPasswordsScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> passwords = prefs.getStringList('passwords') ?? [];
 
+    // Remove from main list
     passwords.removeAt(index);
-
     await prefs.setStringList('passwords', passwords);
 
     setState(() {
       _passwords.removeAt(index);
+
+      // Update filtered list if applicable
+      if (_filteredPasswords.length > index) {
+        _filteredPasswords.removeAt(index);
+      }
     });
+
+    // After deletion, ensure filteredPasswords is updated correctly
+    _filterPasswords(query);
   }
+
+  void _filterPasswords(String query) {
+    if (query.isNotEmpty) {
+      List<Map<String, String>> filteredList = _passwords
+          .where((password) =>
+              password['website']!.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+
+      setState(() {
+        _filteredPasswords = filteredList;
+      });
+    } else {
+      setState(() {
+        _filteredPasswords = List.from(_passwords);
+      });
+    }
+  }
+}
+
+class PasswordSearchDelegate extends SearchDelegate<String> {
+  final List<Map<String, String>> passwords;
+
+  PasswordSearchDelegate(this.passwords);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, '');
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSuggestions();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSuggestions();
+  }
+
+  Widget _buildSuggestions() {
+    List<Map<String, String>> suggestionList = query.isEmpty
+        ? passwords
+        : passwords
+            .where((password) => password['website']!
+                .toLowerCase()
+                .contains(query.toLowerCase()))
+            .toList();
+
+    return ListView.builder(
+      itemCount: suggestionList.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(suggestionList[index]['website']!),
+          onTap: () {
+            close(context, suggestionList[index]['website']!);
+          },
+        );
+      },
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Password Vault',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+    ),
+    home: ViewPasswordsScreen(),
+  ));
 }

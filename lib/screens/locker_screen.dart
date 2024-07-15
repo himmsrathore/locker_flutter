@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'package:csv/csv.dart';
 
 class LockerScreen extends StatefulWidget {
   @override
@@ -12,6 +8,9 @@ class LockerScreen extends StatefulWidget {
 
 class _LockerScreenState extends State<LockerScreen> {
   String? _name;
+  String? _email;
+  String? _contact;
+  String? _pin;
 
   @override
   void initState() {
@@ -23,76 +22,32 @@ class _LockerScreenState extends State<LockerScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _name = prefs.getString('name');
+      _email = prefs.getString('email');
+      _contact = prefs.getString('mobile');
+      _pin = prefs.getString('pin');
     });
   }
 
-  Future<void> _backupPasswords() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? passwords = prefs.getStringList('passwords');
-
-    if (passwords != null) {
-      // Prompt user for PIN
-      String? pin = await _showPinDialog();
-
-      if (pin != null && pin.isNotEmpty) {
-        // Encrypt the passwords
-        final key = encrypt.Key.fromUtf8(pin.padRight(32));
-        final iv = encrypt.IV.fromLength(16);
-        final encrypter = encrypt.Encrypter(encrypt.AES(key));
-
-        List<List<String>> csvData = [
-          ['Title', 'Username', 'Password', 'Notes']
-        ];
-        for (var password in passwords) {
-          List<String> passwordParts = password.split(',');
-          csvData.add(passwordParts);
-        }
-
-        String csv = const ListToCsvConverter().convert(csvData);
-        final encrypted = encrypter.encrypt(csv, iv: iv);
-
-        // Save to file
-        final directory = await getExternalStorageDirectory();
-        final path = '${directory?.path}/password_backup.csv';
-        final file = File(path);
-        await file.writeAsString(encrypted.base64);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Backup successful: $path')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No passwords to backup')),
-      );
-    }
-  }
-
-  Future<String?> _showPinDialog() async {
-    String? pin;
-    await showDialog<String>(
+  void _showUserInfoDialog() {
+    showDialog(
       context: context,
-      builder: (BuildContext context) {
-        TextEditingController pinController = TextEditingController();
+      builder: (context) {
         return AlertDialog(
-          title: Text('Enter PIN'),
-          content: TextField(
-            controller: pinController,
-            keyboardType: TextInputType.number,
-            obscureText: true,
-            decoration: InputDecoration(hintText: 'PIN'),
+          title: Text('User Information'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildUserInfoItem('Name', _name ?? ''),
+              _buildUserInfoItem('Email', _email ?? ''),
+              _buildUserInfoItem('Mobile', _contact ?? ''),
+              _buildUserInfoItem('PIN', _obscurePin(_pin ?? '')),
+            ],
           ),
-          actions: <Widget>[
+          actions: [
             TextButton(
-              child: Text('Cancel'),
+              child: Text('Close'),
               onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                pin = pinController.text;
                 Navigator.of(context).pop();
               },
             ),
@@ -100,7 +55,34 @@ class _LockerScreenState extends State<LockerScreen> {
         );
       },
     );
-    return pin;
+  }
+
+  String _obscurePin(String pin) {
+    // Obscure the PIN number, for example: show only the last 2 digits
+    return pin.replaceRange(0, pin.length - 1, '***');
+  }
+
+  Widget _buildUserInfoItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$label: ',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -110,16 +92,23 @@ class _LockerScreenState extends State<LockerScreen> {
         title: Text(
           'Locker',
           style: TextStyle(
-            color: const Color.fromARGB(
-                255, 253, 253, 253), // Text color of app bar title
-            fontSize: 20, // Font size of app bar title
-            fontWeight: FontWeight.bold, // Font weight of app bar title
+            color: const Color.fromARGB(255, 253, 253, 253),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: Color(0xff00233c),
         iconTheme: IconThemeData(
-          color: Colors.white, // Color of the back icon
+          color: Colors.white,
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () {
+              _showUserInfoDialog();
+            },
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -130,9 +119,10 @@ class _LockerScreenState extends State<LockerScreen> {
             child: Text(
               'Welcome, $_name!',
               style: TextStyle(
-                  fontSize: 24,
-                  color: Color(0xff00233c),
-                  fontWeight: FontWeight.bold),
+                fontSize: 24,
+                color: Color(0xff00233c),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Expanded(
@@ -151,21 +141,6 @@ class _LockerScreenState extends State<LockerScreen> {
                 _buildMenuItem(
                     context, 'View Secrets', Icons.visibility, '/view_secrets'),
               ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(20),
-            child: ElevatedButton.icon(
-              icon: Icon(Icons.backup),
-              label: Text('Backup Passwords'),
-              onPressed: _backupPasswords,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff00233c),
-                foregroundColor: Colors.white,
-                textStyle: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
             ),
           ),
         ],

@@ -1,5 +1,5 @@
 name: locker
-description: "A new Flutter project."
+description: A secure app for managing your secrets and passwords.
 publish_to: "none"
 version: 0.1.0
 
@@ -13,8 +13,9 @@ dependencies:
   url_launcher: ^6.0.9
   intl: ^0.17.0 # Add this line
   encrypt: ^5.0.0
-  path_provider: ^2.0.3
   csv: ^5.0.0
+  file_picker: ^5.2.0
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:

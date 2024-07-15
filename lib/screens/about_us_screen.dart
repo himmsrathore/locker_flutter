@@ -94,7 +94,7 @@ class AboutUsScreen extends StatelessWidget {
                   SizedBox(height: 20),
                   SizedBox(height: 10),
                   Text(
-                    '"The best way to predict the future is to create it." - Peter Drucker',
+                    'The project is dedicated to my team. Special thanks to Shrivastava for continual improvement and suggestions. ',
                     style: TextStyle(
                       fontSize: 16,
                       fontStyle: FontStyle.italic,
@@ -106,7 +106,7 @@ class AboutUsScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          '© 2024 by White Hawk. Version(1.0.1)',
+                          '© 2024 by White Hawk. Version(1.0.3)',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,

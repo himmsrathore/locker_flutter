@@ -9,6 +9,7 @@ class AddSecretScreen extends StatefulWidget {
 
 class _AddSecretScreenState extends State<AddSecretScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _descriptionController = TextEditingController();
   String _title = '';
   String _description = '';
   String _privacyLevel = 'High';
@@ -31,6 +32,12 @@ class _AddSecretScreenState extends State<AddSecretScreen> {
 
       Navigator.pop(context);
     }
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,6 +86,7 @@ class _AddSecretScreenState extends State<AddSecretScreen> {
               ),
               SizedBox(height: 20),
               TextFormField(
+                controller: _descriptionController,
                 decoration: InputDecoration(
                   labelText: 'Description',
                   border: OutlineInputBorder(
@@ -86,13 +94,18 @@ class _AddSecretScreenState extends State<AddSecretScreen> {
                   ),
                   filled: true,
                   fillColor: Colors.white.withOpacity(0.8),
+                  counterText: '${_descriptionController.text.length}/250',
                 ),
+                maxLength: 250,
                 maxLines: 10,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
                   }
                   return null;
+                },
+                onChanged: (value) {
+                  setState(() {}); // Update the UI to show the character count
                 },
                 onSaved: (value) {
                   _description = value!;
@@ -127,7 +140,6 @@ class _AddSecretScreenState extends State<AddSecretScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xff00233c), // background
                   foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   textStyle:
                       TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -140,4 +152,14 @@ class _AddSecretScreenState extends State<AddSecretScreen> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Secret Vault',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+    ),
+    home: AddSecretScreen(),
+  ));
 }

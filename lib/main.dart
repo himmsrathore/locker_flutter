@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Password Keeper',
+      title: 'Locker',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -53,10 +53,11 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkRegistrationStatus();
+    _navigateToNextScreen();
   }
 
-  Future<void> _checkRegistrationStatus() async {
+  Future<void> _navigateToNextScreen() async {
+    await Future.delayed(Duration(seconds: 5));
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isRegistered = prefs.containsKey('pin');
 
@@ -71,7 +72,23 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: CircularProgressIndicator(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/logo.png', height: 100),
+            SizedBox(height: 20),
+            Text(
+              'Locker',
+              style: TextStyle(
+                color: Color(0xff00233c),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 20),
+            CircularProgressIndicator(),
+          ],
+        ),
       ),
     );
   }

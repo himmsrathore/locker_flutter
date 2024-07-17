@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Add this import
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart'; // Replace with the actual file name of your main screen
 
@@ -27,28 +27,36 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Add your splash screen logo or any other widget here
-            Image.asset(
-              'assets/images/logo.png',
-              width: 100,
-              height: 100,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Secret Vault',
-              style: TextStyle(
-                color: Color(0xff00233c),
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Add your splash screen logo or any other widget here
+              Image.asset(
+                'assets/images/logo.png',
+                width: 100,
+                height: 100,
               ),
-            ),
-            SizedBox(height: 20),
-            CircularProgressIndicator(),
-          ],
+              SizedBox(height: 20),
+              Text(
+                'Secret Vault',
+                style: TextStyle(
+                  color: Color(0xff00233c),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 20),
+              CircularProgressIndicator(),
+            ],
+          ),
         ),
       ),
     );

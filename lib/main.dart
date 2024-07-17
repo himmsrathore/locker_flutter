@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Locker',
+      title: 'Locker >>',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -71,23 +71,32 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/images/logo.png', height: 100),
-            SizedBox(height: 20),
-            Text(
-              'Locker',
-              style: TextStyle(
-                color: Color(0xff00233c),
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'),
+            fit: BoxFit
+                .cover, // Ensure the background image covers the entire screen
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/images/logo.png', height: 100),
+              SizedBox(height: 20),
+              Text(
+                'Locker',
+                style: TextStyle(
+                  color: Color(0xff00233c),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            CircularProgressIndicator(),
-          ],
+              SizedBox(height: 20),
+              CircularProgressIndicator(),
+            ],
+          ),
         ),
       ),
     );

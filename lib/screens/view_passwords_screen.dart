@@ -66,77 +66,86 @@ class _ViewPasswordsScreenState extends State<ViewPasswordsScreen> {
           color: Colors.white,
         ),
       ),
-      body: _filteredPasswords.isEmpty
-          ? Center(
-              child: Text(
-                'No passwords found',
-                style: TextStyle(
-                  color: Color(0xff00233c),
-                  fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background2.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: _filteredPasswords.isEmpty
+            ? Center(
+                child: Text(
+                  'No passwords found',
+                  style: TextStyle(
+                    color: Color(0xff00233c),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            )
-          : ListView.builder(
-              itemCount: _filteredPasswords.length,
-              itemBuilder: (context, index) {
-                final password = _filteredPasswords[index];
+              )
+            : ListView.builder(
+                itemCount: _filteredPasswords.length,
+                itemBuilder: (context, index) {
+                  final password = _filteredPasswords[index];
 
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    elevation: 3,
-                    child: ListTile(
-                      leading: Icon(Icons.lock,
-                          color: Color(0xff00233c)), // Icon color
-                      title: GestureDetector(
-                        onTap: () {
-                          _launchURL(password['website']!);
-                        },
-                        child: Text(
-                          password['website']!,
-                          style: TextStyle(
-                            color: Color(0xff00233c),
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      elevation: 3,
+                      child: ListTile(
+                        leading: Icon(Icons.lock,
+                            color: Color(0xff00233c)), // Icon color
+                        title: GestureDetector(
+                          onTap: () {
+                            _launchURL(password['website']!);
+                          },
+                          child: Text(
+                            password['website']!,
+                            style: TextStyle(
+                              color: Color(0xff00233c),
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ),
+                        subtitle: Text(
+                          password['emailId']!,
+                          style: TextStyle(color: Color(0xff00233c)),
+                        ),
+                        trailing: _filteredPasswords.length == _passwords.length
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.visibility),
+                                    color: Color(0xff00233c), // Icon color
+                                    onPressed: () {
+                                      _showPasswordDialog(
+                                          password['password']!);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    color: Colors.red, // Icon color
+                                    onPressed: () {
+                                      _deletePassword(index);
+                                    },
+                                  ),
+                                ],
+                              )
+                            : IconButton(
+                                icon: Icon(Icons.visibility),
+                                color: Color(0xff00233c), // Icon color
+                                onPressed: () {
+                                  _showPasswordDialog(password['password']!);
+                                },
+                              ),
                       ),
-                      subtitle: Text(
-                        password['emailId']!,
-                        style: TextStyle(color: Color(0xff00233c)),
-                      ),
-                      trailing: _filteredPasswords.length == _passwords.length
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.visibility),
-                                  color: Color(0xff00233c), // Icon color
-                                  onPressed: () {
-                                    _showPasswordDialog(password['password']!);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete),
-                                  color: Colors.red, // Icon color
-                                  onPressed: () {
-                                    _deletePassword(index);
-                                  },
-                                ),
-                              ],
-                            )
-                          : IconButton(
-                              icon: Icon(Icons.visibility),
-                              color: Color(0xff00233c), // Icon color
-                              onPressed: () {
-                                _showPasswordDialog(password['password']!);
-                              },
-                            ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+      ),
     );
   }
 

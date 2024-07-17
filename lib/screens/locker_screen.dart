@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 class LockerScreen extends StatefulWidget {
   @override
@@ -23,31 +25,70 @@ class _LockerScreenState extends State<LockerScreen> {
     setState(() {
       _name = prefs.getString('name');
       _email = prefs.getString('email');
-      _contact = prefs.getString('mobile');
+      _contact = prefs.getString('contact');
       _pin = prefs.getString('pin');
     });
   }
 
   void _showUserInfoDialog() {
+    TextEditingController nameController = TextEditingController(text: _name);
+    TextEditingController emailController = TextEditingController(text: _email);
+    TextEditingController contactController =
+        TextEditingController(text: _contact);
+    TextEditingController pinController = TextEditingController(text: _pin);
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('User Information'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildUserInfoItem('Name', _name ?? ''),
-              _buildUserInfoItem('Email', _email ?? ''),
-              _buildUserInfoItem('Mobile', _contact ?? ''),
-              _buildUserInfoItem('PIN', _obscurePin(_pin ?? '')),
-            ],
+          title: Text(
+            'Edit User Information',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildUserInfoItem('Name', nameController),
+                  SizedBox(height: 10),
+                  _buildUserInfoItem('Email', emailController),
+                  SizedBox(height: 10),
+                  _buildUserInfoItem('Mobile', contactController),
+                  SizedBox(height: 10),
+                  _buildUserInfoItem('PIN', pinController, obscureText: true),
+                ],
+              ),
+            ),
           ),
           actions: [
             TextButton(
-              child: Text('Close'),
+              child: Text('Cancel'),
               onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 28, 63, 88),
+                  foregroundColor: Colors.white),
+              child: Text('Save'),
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setString('name', nameController.text);
+                await prefs.setString('email', emailController.text);
+                await prefs.setString('contact', contactController.text);
+                await prefs.setString('pin', pinController.text);
+
+                setState(() {
+                  _name = nameController.text;
+                  _email = emailController.text;
+                  _contact = contactController.text;
+                  _pin = pinController.text;
+                });
+
                 Navigator.of(context).pop();
               },
             ),
@@ -57,31 +98,28 @@ class _LockerScreenState extends State<LockerScreen> {
     );
   }
 
-  String _obscurePin(String pin) {
-    // Obscure the PIN number, for example: show only the last 2 digits
-    return pin.replaceRange(0, pin.length - 1, '***');
-  }
-
-  Widget _buildUserInfoItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$label: ',
-            style: TextStyle(fontWeight: FontWeight.bold),
+  Widget _buildUserInfoItem(String label, TextEditingController controller,
+      {bool obscureText = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label:',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        SizedBox(height: 5),
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.grey[200],
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           ),
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.grey[700]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -90,7 +128,7 @@ class _LockerScreenState extends State<LockerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Locker',
+          'Locker ',
           style: TextStyle(
             color: const Color.fromARGB(255, 253, 253, 253),
             fontSize: 20,
@@ -110,74 +148,116 @@ class _LockerScreenState extends State<LockerScreen> {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: EdgeInsets.all(20),
-            color: Color(0xfff6f7fb),
-            child: Text(
-              'Welcome, $_name!',
-              style: TextStyle(
-                fontSize: 24,
-                color: Color(0xff00233c),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              padding: EdgeInsets.all(20),
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 20,
-              children: [
-                _buildMenuItem(
-                    context, 'Add New Password', Icons.add, '/add_password'),
-                _buildMenuItem(context, 'View All Passwords', Icons.lock,
-                    '/view_passwords'),
-                _buildMenuItem(context, 'Add Secret', Icons.add_shopping_cart,
-                    '/add_secret'),
-                _buildMenuItem(
-                    context, 'View Secrets', Icons.visibility, '/view_secrets'),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(
-      BuildContext context, String title, IconData icon, String routeName) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(context, routeName);
-      },
-      child: Container(
+      body: Container(
         decoration: BoxDecoration(
-          color: Color(0xff00233c),
-          borderRadius: BorderRadius.circular(10),
+          image: DecorationImage(
+            image: AssetImage('assets/images/background2.png'),
+            fit: BoxFit.cover,
+          ),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
-              icon,
-              size: 50,
-              color: Colors.white,
+            Container(
+              padding: EdgeInsets.all(20),
+              color: Color(0xfff6f7fb),
+              child: Text(
+                'Welcome, $_name!',
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Color(0xff00233c),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-            SizedBox(height: 10),
-            Text(
-              title,
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                padding: EdgeInsets.all(20),
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+                children: [
+                  _buildMenuItem(
+                      context, 'Add New Password', Icons.add, '/add_password'),
+                  _buildMenuItem(context, 'View All Passwords', Icons.lock,
+                      '/view_passwords'),
+                  _buildMenuItem(context, 'Add Secret', Icons.add_shopping_cart,
+                      '/add_secret'),
+                  _buildMenuItem(context, 'View Secrets', Icons.visibility,
+                      '/view_secrets'),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  Text(
+                    'If you like this app, share it with your friends',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    ),
+                    icon: Icon(Icons.share, color: Colors.white),
+                    label: Text(
+                      'Share Now',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onPressed: () {
+                      Share.share('Check out this amazing app!');
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+Widget _buildMenuItem(
+    BuildContext context, String title, IconData icon, String routeName) {
+  return InkWell(
+    onTap: () {
+      Navigator.pushNamed(context, routeName);
+    },
+    child: Container(
+      decoration: BoxDecoration(
+        color: Color(0xff00233c),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 50,
+            color: Colors.white,
+          ),
+          SizedBox(height: 10),
+          Text(
+            title,
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 void main() {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/services.dart'; // Add this import
+import 'package:flutter/services.dart';
 
 class ViewSecretsScreen extends StatefulWidget {
   @override
@@ -33,6 +33,10 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
             'timestamp': secretParts[3],
           };
         }).toList();
+
+        // Sort by timestamp in descending order
+        _secrets.sort((a, b) => b['timestamp']!.compareTo(a['timestamp']!));
+
         _filteredSecrets = List.from(_secrets); // Initialize filtered list
       });
     }
@@ -46,7 +50,10 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
             List.from(_secrets); // Reset to full list if query is empty
       } else {
         _filteredSecrets = _secrets.where((secret) {
-          return secret['title']!.toLowerCase().contains(query.toLowerCase());
+          return secret['title']!.toLowerCase().contains(query.toLowerCase()) ||
+              secret['description']!
+                  .toLowerCase()
+                  .contains(query.toLowerCase());
         }).toList();
       }
     });
@@ -81,13 +88,42 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(labelText: 'Title'),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue[50], // Background color
+                  border: Border.all(color: Colors.blue), // Border color
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+                padding: EdgeInsets.all(8.0), // Padding inside the container
+                margin: EdgeInsets.symmetric(
+                    vertical: 4.0), // Margin outside the container
+                child: TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    border: InputBorder.none, // Remove default border
+                  ),
+                ),
               ),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue[50], // Background color
+                  border: Border.all(color: Colors.blue), // Border color
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+                padding: EdgeInsets.all(8.0), // Padding inside the container
+                margin: EdgeInsets.symmetric(
+                    vertical: 4.0), // Margin outside the container
+                child: TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(
+                    labelText: 'Description',
+                    border: InputBorder.none, // Remove default border
+                  ),
+                  maxLines: null, // Allows the TextField to be multiline
+                  keyboardType:
+                      TextInputType.multiline, // Enables multiline input
+                ),
               ),
             ],
           ),
@@ -176,125 +212,133 @@ class _ViewSecretsScreenState extends State<ViewSecretsScreen> {
           color: Colors.white,
         ),
       ),
-      body: _filteredSecrets.isEmpty
-          ? Center(
-              child: Text(
-                'No secrets saved yet',
-                style: TextStyle(
-                  color: Color(0xff00233c),
-                  fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background2.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: _filteredSecrets.isEmpty
+            ? Center(
+                child: Text(
+                  'No secrets saved yet',
+                  style: TextStyle(
+                    color: Color(0xff00233c),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            )
-          : ListView.builder(
-              itemCount: _filteredSecrets.length,
-              itemBuilder: (context, index) {
-                // Determine text color for Privacy Level based on value
-                Color privacyColor = Colors.black; // Default color
-                switch (_filteredSecrets[index]['privacyLevel']) {
-                  case 'High':
-                    privacyColor = Colors.red;
-                    break;
-                  case 'Moderate':
-                    privacyColor = Colors.orange;
-                    break;
-                  case 'Low':
-                    privacyColor = Colors.green;
-                    break;
-                  default:
-                    privacyColor = Colors.black; // Fallback
-                }
+              )
+            : ListView.builder(
+                itemCount: _filteredSecrets.length,
+                itemBuilder: (context, index) {
+                  // Determine text color for Privacy Level based on value
+                  Color privacyColor = Colors.black; // Default color
+                  switch (_filteredSecrets[index]['privacyLevel']) {
+                    case 'High':
+                      privacyColor = Colors.red;
+                      break;
+                    case 'Moderate':
+                      privacyColor = Colors.orange;
+                      break;
+                    case 'Low':
+                      privacyColor = Colors.green;
+                      break;
+                    default:
+                      privacyColor = Colors.black; // Fallback
+                  }
 
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    elevation: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          leading: Icon(Icons.security,
-                              color: Color(0xff00233c)), // Icon color
-                          title: Text(
-                            _filteredSecrets[index]['title']!,
-                            style: TextStyle(
-                              color: Color(0xff00233c),
-                              fontWeight: FontWeight.bold,
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      elevation: 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            leading: Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: privacyColor, // Privacy color
+                              ),
+                            ),
+                            title: Text(
+                              _filteredSecrets[index]['title']!,
+                              style: TextStyle(
+                                color: Color(0xff00233c),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '*******',
+                              style: TextStyle(color: Color(0xff00233c)),
                             ),
                           ),
-                          subtitle: Text(
-                            '******',
-                            style: TextStyle(color: Color(0xff00233c)),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.circle,
-                                    color: privacyColor,
-                                    size: 12,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    _filteredSecrets[index]['privacyLevel']!,
-                                    style: TextStyle(
-                                      color:
-                                          privacyColor, // Apply determined color
+                          Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    // IconButton(
+                                    //   icon: Icon(Icons.lock_clock,
+                                    //       color: const Color.fromARGB(
+                                    //           255, 139, 139, 139)),
+                                    //   onPressed: () {
+                                    //     _viewSecret(index);
+                                    //   },
+                                    // ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      _filteredSecrets[index]['timestamp']!,
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 9, // Font size for timestamp
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: 20),
-                                  Text(
-                                    _filteredSecrets[index]['timestamp']!,
-                                    style: TextStyle(
-                                      color: Colors
-                                          .grey, // Grey color for timestamp
-                                      fontStyle:
-                                          FontStyle.italic, // Italic font style
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.visibility,
-                                        color: Colors.blue),
-                                    onPressed: () {
-                                      _viewSecret(index);
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon:
-                                        Icon(Icons.edit, color: Colors.orange),
-                                    onPressed: () {
-                                      _editSecret(index);
-                                    },
-                                  ),
-                                  if (_searchQuery.isEmpty)
+                                  ],
+                                ),
+                                Row(
+                                  children: [
                                     IconButton(
-                                      icon:
-                                          Icon(Icons.delete, color: Colors.red),
+                                      icon: Icon(Icons.visibility,
+                                          color: Colors.blue),
                                       onPressed: () {
-                                        _deleteSecret(_secrets
-                                            .indexOf(_filteredSecrets[index]));
+                                        _viewSecret(index);
                                       },
                                     ),
-                                ],
-                              ),
-                            ],
+                                    IconButton(
+                                      icon: Icon(Icons.edit,
+                                          color: Colors.orange),
+                                      onPressed: () {
+                                        _editSecret(index);
+                                      },
+                                    ),
+                                    if (_searchQuery.isEmpty)
+                                      IconButton(
+                                        icon: Icon(Icons.delete,
+                                            color: Colors.red),
+                                        onPressed: () {
+                                          _deleteSecret(_secrets.indexOf(
+                                              _filteredSecrets[index]));
+                                        },
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+      ),
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
@@ -192,6 +191,15 @@ class _LockerScreenState extends State<LockerScreen> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
+                  Text(
+                    'Thank You for Download ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
                   Text(
                     'If you like this app, share it with your friends',
                     style: TextStyle(
